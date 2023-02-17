@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "nnunetpaper"
+version = "0.1.0"
+description = ""
+authors = ["Mathijs de Boer <m.deboer-41@umcutrecht.nl>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10, <3.12"
+torchvision = {version = "^0.14.1+cu117", source = "pytorch"}
+monai = "^1.1.0"
+click = "^8.1.3"
+simpleitk = "^2.2.1"
+seaborn = "^0.12.2"
+tqdm = "^4.64.1"
+scipy = "^1.10.0"
+nibabel = "^5.0.0"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu117/"
+secondary = true
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.12.0"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
