@@ -8,16 +8,15 @@ Note that this script is not quite universal, and is written with our dataset in
 That is, we manually check for UMCU and USZ labels, while your dataset might not have them.
 """
 
-from itertools import combinations
 from pathlib import Path
 
 import click
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from scipy.stats import ttest_ind, shapiro, mannwhitneyu
 
-from nnunetpaper.plot.utils import read_json
+from nnunetpaper._utils import get_multi_method_dataframe
+from nnunetpaper.data import read_json
 
 
 @click.group()
@@ -33,13 +32,10 @@ def main():
 def metrics(files: list[Path], output: Path):
     data = read_json(files)
 
-    anatomies = [x.parent.name for x in files]
-    metric_names = data["metric_name"].unique()
-
     sns.set_style("whitegrid")
     sns.set_context("paper")
     g = sns.catplot(
-        data=data,
+        data=data[data["center"] != "All"],
         x="anatomy",
         y="metric",
         hue="center",
@@ -53,53 +49,15 @@ def metrics(files: list[Path], output: Path):
     for col, ax in g.axes_dict.items():
         if col in ["dice", "iou"]:
             ax.set_ylabel("Score")
-            ax.set_ylim((0.0, 1.1))
+            # ax.set_ylim((0.0, 1.1))
         elif col in ["hd95", "assd"]:
             ax.set_ylabel("Distance (voxels)")
             ax.set_yscale("log")
-            ax.set_ylim((None, None))
+            # ax.set_ylim((None, None))
 
     sns.despine(trim=True, left=True)
 
     plt.savefig(output, dpi=300)
-
-    for anatomy in anatomies:
-        print(anatomy)
-        for name in metric_names:
-            all_centers = data.loc[
-                (data["metric_name"] == name)
-                & (data["anatomy"] == anatomy)
-                & (data["center"] == "All"),
-                "metric",
-            ]
-            umcu = data.loc[
-                (data["metric_name"] == name)
-                & (data["anatomy"] == anatomy)
-                & (data["center"] == "UMCU"),
-                "metric",
-            ]
-            usz = data.loc[
-                (data["metric_name"] == name)
-                & (data["anatomy"] == anatomy)
-                & (data["center"] == "USZ"),
-                "metric",
-            ]
-
-            print(f"\t{name} | All:  {all_centers.mean():#.3g} ($\\pm$ {all_centers.std():#.3g})")
-            print(
-                f"\t{len(name) * ' '} | UMCU: {umcu.mean():#.3g} ($\\pm$ {umcu.std():#.3g})"
-            )
-            print(f"\t{len(name) * ' '} | USZ:  {usz.mean():#.3g} ($\\pm$ {usz.std():#.3g})")
-
-            mannwhitney = mannwhitneyu(
-                umcu,
-                usz
-            )
-            print("\tMann-Whitney U:")
-            if mannwhitney.pvalue < 0.0125:
-                print(f"\t\t{mannwhitney.statistic:#.3g} ($\\mathbf{{p = {mannwhitney.pvalue:#.3g}}}$)")
-            else:
-                print(f"\t\t{mannwhitney.statistic:#.3g} ($p = {mannwhitney.pvalue:#.3g}$)")
 
 
 @main.command()
@@ -129,11 +87,11 @@ def volume(files: list[Path], output: Path):
     for col, ax in p.axes_dict.items():
         if col[0] in ["dice", "iou"]:
             ax.set_ylabel("Score")
-            ax.set_ylim((None, 1.0))
+            # ax.set_ylim((None, 1.0))
         elif col[0] in ["hd95", "assd"]:
             ax.set_ylabel("Distance (voxels)")
             ax.set_yscale("log")
-            ax.set_ylim((None, None))
+            # ax.set_ylim((None, None))
 
     plt.savefig(output, dpi=300)
 
@@ -142,29 +100,19 @@ def volume(files: list[Path], output: Path):
 @click.option(
     "-m",
     "--method",
+    "methods",
     multiple=True,
     type=click.Tuple([str, click.Path(exists=True, readable=True, path_type=Path)]),
 )
 @click.option(
     "-o", "--output", required=True, type=click.Path(writable=True, path_type=Path)
 )
-def methods(method: list[tuple[str, Path]], output: Path):
+def method(methods: list[tuple[str, Path]], output: Path):
     if output.is_dir():
         output /= "methods_plot.png"
 
-    method_dict: dict[str, list[Path]] = {}
-    for method_name, scores_path in method:
-        method_dict[method_name] = method_dict.get(method_name, [])
-        method_dict[method_name].append(scores_path)
-
-    method_data: dict[str, pd.DataFrame] = {}
-    for method_name in method_dict.keys():
-        method_data[method_name] = read_json(method_dict[method_name])
-        method_data[method_name]["method"] = method_name
-    data = pd.concat(method_data.values(), ignore_index=True)
-
-    data["method_and_center"] = data["method"] + " " + data["center"]
-    print(data.head())
+    data = get_multi_method_dataframe(methods)
+    data["method_and_center"] = data["methods"] + " " + data["center"]
 
     sns.set_style("whitegrid")
     sns.set_context("paper")
@@ -188,8 +136,8 @@ def methods(method: list[tuple[str, Path]], output: Path):
             "yellowgreen",
             "greenyellow",
             "mediumvioletred",
-            "palevioletred",
             "hotpink",
+            "pink",
         ],
     )
     g.set_titles(col_template="{col_name}", row_template="{row_name}")
@@ -197,38 +145,15 @@ def methods(method: list[tuple[str, Path]], output: Path):
     for col, ax in g.axes_dict.items():
         if col in ["dice", "iou"]:
             ax.set_ylabel("Score")
-            ax.set_ylim((0.0, 1.1))
+            # ax.set_ylim((0.0, 1.1))
         elif col in ["hd95", "assd"]:
             ax.set_ylabel("Distance (voxels)")
             ax.set_yscale("log")
-            ax.set_ylim((None, None))
+            # ax.set_ylim((None, None))
 
     sns.despine(trim=True, left=True)
 
     plt.savefig(output, dpi=300)
-
-    test_data = data[data["center"] == "All"]
-    for anatomy in test_data["anatomy"].unique():
-        print(f"{anatomy}")
-        anatomy_data = test_data[test_data["anatomy"] == anatomy]
-
-        for metric in anatomy_data["metric_name"].unique():
-            print(f"\t{metric}")
-            metric_data = anatomy_data[anatomy_data["metric_name"] == metric]
-
-            for combo in combinations(metric_data["method"].unique(), 2):
-                test = mannwhitneyu(
-                    x=metric_data.loc[metric_data["method"] == combo[0], "metric"],
-                    y=metric_data.loc[metric_data["method"] == combo[1], "metric"],
-                )
-
-                print(f"\t\tTesting {combo[0]} vs {combo[1]}")
-                report = f"\t\t{test.statistic:#.3g}, "
-                if test.pvalue < 0.05:
-                    report += f"($\\mathbf{{p = {test.pvalue:#.3g}}}$)"
-                else:
-                    report += f"($p = {test.pvalue:#.3g}$)"
-                print(report)
 
 
 @main.command()

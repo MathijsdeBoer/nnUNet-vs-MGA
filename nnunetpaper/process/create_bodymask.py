@@ -1,7 +1,7 @@
 from pathlib import Path
 
-import SimpleITK as sitk
 import click
+import SimpleITK as sitk
 
 
 def _process_patient(input_file: Path, output_file: Path, axis: str = "z"):

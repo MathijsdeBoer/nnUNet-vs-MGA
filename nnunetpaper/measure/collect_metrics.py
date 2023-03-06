@@ -2,16 +2,12 @@ import json
 from math import prod
 from pathlib import Path
 
-import SimpleITK as sitk
 import click
 import numpy as np
-from monai.metrics import (
-    DiceMetric,
-    MeanIoU,
-    HausdorffDistanceMetric,
-    SurfaceDistanceMetric,
-)
-from torch import tensor, Tensor
+import SimpleITK as sitk
+from monai.metrics import (DiceMetric, HausdorffDistanceMetric, MeanIoU,
+                           SurfaceDistanceMetric)
+from torch import Tensor, tensor
 from tqdm import tqdm
 
 
@@ -36,14 +32,7 @@ from tqdm import tqdm
         exists=False, file_okay=True, dir_okay=True, writable=True, path_type=Path
     ),
 )
-@click.option(
-    "-c",
-    "--class",
-    "check_class",
-    required=False,
-    type=int,
-    default=1
-)
+@click.option("-c", "--class", "check_class", required=False, type=int, default=1)
 def main(preds: Path, refs: Path, output: Path = None, check_class: int = 1):
     skipped = []
     metrics = {}
