@@ -5,8 +5,12 @@ from pathlib import Path
 import click
 import numpy as np
 import SimpleITK as sitk
-from monai.metrics import (DiceMetric, HausdorffDistanceMetric, MeanIoU,
-                           SurfaceDistanceMetric)
+from monai.metrics import (
+    DiceMetric,
+    HausdorffDistanceMetric,
+    MeanIoU,
+    SurfaceDistanceMetric,
+)
 from torch import Tensor, tensor
 from tqdm import tqdm
 

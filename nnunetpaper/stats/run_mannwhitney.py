@@ -89,8 +89,12 @@ def method(methods: list[tuple[str, Path]], center_to_check: str = "All"):
             method_names = metric_data["methods"].unique()
 
             for combo in combinations(method_names, 2):
-                x = metric_data.loc[metric_data["methods"] == combo[0], "metric"].to_numpy()
-                y = metric_data.loc[metric_data["methods"] == combo[1], "metric"].to_numpy()
+                x = metric_data.loc[
+                    metric_data["methods"] == combo[0], "metric"
+                ].to_numpy()
+                y = metric_data.loc[
+                    metric_data["methods"] == combo[1], "metric"
+                ].to_numpy()
 
                 test = mannwhitneyu(
                     x=x,
@@ -100,7 +104,7 @@ def method(methods: list[tuple[str, Path]], center_to_check: str = "All"):
                 print(f"\t\tTesting {combo[0]} vs {combo[1]}")
                 report = f"\t\t\t{test.statistic:#.3g}, "
                 if test.pvalue < 0.001:
-                    report += f"($\\mathbf{{p < 0.001}}$)"
+                    report += "($\\mathbf{{p < 0.001}}$)"
                 elif test.pvalue < 0.0125:
                     report += f"($\\mathbf{{p = {test.pvalue:#.3g}}}$)"
                 else:
