@@ -118,13 +118,7 @@ def method(methods: list[tuple[str, Path]], output: Path):
     for anatomy in anatomies:
         print(f"Plotting {anatomy}")
         sns.set_style("whitegrid")
-        sns.set_context(
-            "notebook",
-            font_scale=2,
-            rc={
-                "lines.linewidth": 3
-            }
-        )
+        sns.set_context("notebook", font_scale=2, rc={"lines.linewidth": 3})
         g = sns.catplot(
             data=data[data["anatomy"] == anatomy],
             x="methods",
