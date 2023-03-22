@@ -105,55 +105,56 @@ def volume(files: list[Path], output: Path):
     type=click.Tuple([str, click.Path(exists=True, readable=True, path_type=Path)]),
 )
 @click.option(
-    "-o", "--output", required=True, type=click.Path(writable=True, path_type=Path)
+    "-o",
+    "--output",
+    required=True,
+    type=click.Path(writable=True, file_okay=False, dir_okay=True, path_type=Path),
 )
 def method(methods: list[tuple[str, Path]], output: Path):
-    if output.is_dir():
-        output /= "methods_plot.png"
-
     data = get_multi_method_dataframe(methods)
     data["method_and_center"] = data["methods"] + " " + data["center"]
 
-    sns.set_style("whitegrid")
-    sns.set_context("paper")
-    g = sns.catplot(
-        data=data,
-        x="anatomy",
-        y="metric",
-        hue="method_and_center",
-        col="metric_name",
-        col_wrap=2,
-        kind="box",
-        sharey=False,
-        palette=[
-            "darkorange",
-            "orange",
-            "gold",
-            "royalblue",
-            "cornflowerblue",
-            "skyblue",
-            "olivedrab",
-            "yellowgreen",
-            "greenyellow",
-            "mediumvioletred",
-            "hotpink",
-            "pink",
-        ],
-    )
-    g.set_titles(col_template="{col_name}", row_template="{row_name}")
+    anatomies = data["anatomy"].unique()
+    for anatomy in anatomies:
+        print(f"Plotting {anatomy}")
+        sns.set_style("whitegrid")
+        sns.set_context(
+            "notebook",
+            font_scale=2,
+            rc={
+                "lines.linewidth": 3
+            }
+        )
+        g = sns.catplot(
+            data=data[data["anatomy"] == anatomy],
+            x="methods",
+            y="metric",
+            hue="center",
+            col="metric_name",
+            col_wrap=2,
+            kind="box",
+            sharey=False,
+            palette=sns.color_palette("colorblind"),
+            legend=True,
+        )
+        g.set_titles(col_template="{col_name}", row_template="{row_name}")
+        plt.suptitle(anatomy)
 
-    for col, ax in g.axes_dict.items():
-        if col in ["dice", "iou"]:
-            ax.set_ylabel("Score")
-            # ax.set_ylim((0.0, 1.1))
-        elif col in ["hd95", "assd"]:
-            ax.set_ylabel("Distance (voxels)")
-            ax.set_yscale("log")
-            # ax.set_ylim((None, None))
+        for col, ax in g.axes_dict.items():
+            if col in ["dice", "iou"]:
+                ax.set_ylabel("Score")
+                # ax.set_ylim((0.0, 1.1))
+            elif col in ["hd95", "assd"]:
+                ax.set_ylabel("Distance (voxels)")
+                ax.set_yscale("log")
+                # ax.set_ylim((None, None))
 
-    sns.despine(trim=True, left=True)
+        sns.despine(trim=True, left=True)
 
-    plt.savefig(output, dpi=300)
+        if not output.exists():
+            output.mkdir(parents=True)
+        plot_output = output / f"methods_plot_{anatomy}.png"
+        plt.savefig(plot_output, dpi=300)
 
 
 @main.command()

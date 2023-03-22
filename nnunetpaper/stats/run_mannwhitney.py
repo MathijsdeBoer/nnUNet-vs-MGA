@@ -18,7 +18,7 @@ def main():
 def center(files: list[Path]):
     data = read_json(files)
 
-    anatomies = [x.parent.name for x in files]
+    anatomies = data["anatomy"].unique()
     metric_names = data["metric_name"].unique()
 
     for anatomy in anatomies:
@@ -55,7 +55,9 @@ def center(files: list[Path]):
 
             mannwhitney = mannwhitneyu(umcu, usz)
             print("\tMann-Whitney U:")
-            if mannwhitney.pvalue < 0.0125:
+            if mannwhitney.pvalue < 0.001:
+                print(f"\t\t{mannwhitney.statistic:#.3g} ($\\mathbf{{p < 0.001}}$)")
+            elif mannwhitney.pvalue < 0.0125:
                 print(
                     f"\t\t{mannwhitney.statistic:#.3g} ($\\mathbf{{p = {mannwhitney.pvalue:#.3g}}}$)"
                 )
@@ -99,12 +101,15 @@ def method(methods: list[tuple[str, Path]], center_to_check: str = "All"):
                 test = mannwhitneyu(
                     x=x,
                     y=y,
+                    alternative="less" if metric in ["hd95", "assd"] else "greater",
                 )
 
-                print(f"\t\tTesting {combo[0]} vs {combo[1]}")
+                print(
+                    f"\t\tTesting {combo[0]} {'<' if metric in ['hd95', 'assd'] else '>'} {combo[1]}"
+                )
                 report = f"\t\t\t{test.statistic:#.3g}, "
                 if test.pvalue < 0.001:
-                    report += "($\\mathbf{{p < 0.001}}$)"
+                    report += "($\\mathbf{p < 0.001}$)"
                 elif test.pvalue < 0.0125:
                     report += f"($\\mathbf{{p = {test.pvalue:#.3g}}}$)"
                 else:
