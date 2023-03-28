@@ -101,13 +101,13 @@ def _process_set(
 
         if as_posix:
             paths.append({
-                "image": (image_base / sample.name).as_posix(),
-                "label": (label_base / sample.name).as_posix()
+                "image": (image_base / (sample.name + ".nii.gz")).as_posix(),
+                "label": (label_base / (sample.name + ".nii.gz")).as_posix()
             })
         else:
             paths.append({
-                "image": str(image_base / sample.name),
-                "label": str(label_base / sample.name)
+                "image": str(image_base / (sample.name + ".nii.gz")),
+                "label": str(label_base / (sample.name + ".nii.gz"))
             })
 
     return paths, n_classes
@@ -193,7 +193,7 @@ def main(
         "release": "1.0",
         "tensorImageSize": "3D",
         "modality": {f"{i}": f"modality {i}" for i in range(len(image_glob))},
-        "labels": {f"{i}": f"label {i}" for i in range(n_classes)},
+        "labels": {f"{i}": f"label {i}" for i in range(n_classes + 1)},
         "numTraining": len(train_paths),
         "numTest": len(test_paths),
         "training": train_paths,
