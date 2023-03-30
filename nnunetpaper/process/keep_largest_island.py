@@ -31,11 +31,12 @@ def main():
     "-o",
     "--output",
     "output_path",
-    required=True,
+    required=False,
     type=click.Path(file_okay=False, writable=True, path_type=Path),
+    default=None
 )
-def directory(input_path: Path, output_path: Path):
-    if not output_path.exists():
+def directory(input_path: Path, output_path: Path | None = None):
+    if output_path is not None and not output_path.exists():
         output_path.mkdir(parents=True)
 
     skipped_files = []
@@ -50,7 +51,10 @@ def directory(input_path: Path, output_path: Path):
         except RuntimeError:
             skipped_files.append(patient)
             continue
-        sitk.WriteImage(_process_patient(image), output_path / patient.name)
+        if output_path is not None:
+            sitk.WriteImage(_process_patient(image), output_path / patient.name)
+        else:
+            sitk.WriteImage(_process_patient(image), patient)
 
     print("Skipped:")
     for s in skipped_files:
