@@ -4,7 +4,9 @@ import click
 
 
 @click.command()
-@click.argument("path", type=click.Path(exists=True, file_okay=False, readable=True, path_type=Path))
+@click.argument(
+    "path", type=click.Path(exists=True, file_okay=False, readable=True, path_type=Path)
+)
 def main(path: Path):
     train_images = path / "imagesTr"
     train_labels = path / "labelsTr"
@@ -42,5 +44,5 @@ def main(path: Path):
             print(f" - {m}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

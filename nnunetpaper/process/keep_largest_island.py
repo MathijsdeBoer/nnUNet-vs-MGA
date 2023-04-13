@@ -33,7 +33,7 @@ def main():
     "output_path",
     required=False,
     type=click.Path(file_okay=False, writable=True, path_type=Path),
-    default=None
+    default=None,
 )
 def directory(input_path: Path, output_path: Path | None = None):
     if output_path is not None and not output_path.exists():

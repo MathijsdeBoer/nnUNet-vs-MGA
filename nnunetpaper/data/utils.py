@@ -11,6 +11,8 @@ def read_json(files: list[Path]) -> pd.DataFrame:
         "center": [],
         "anatomy": [],
         "segment_volume": [],
+        "image_volume": [],
+        "time": [],
         "pt_id": [],
     }
     for file in files:
@@ -20,7 +22,7 @@ def read_json(files: list[Path]) -> pd.DataFrame:
         for k in d.keys():
             for metric in d[k].keys():
                 # Manual skip
-                if metric == "volume" or metric == "segment_volume":
+                if metric == "volume" or metric == "segment_volume" or metric == "time":
                     continue
 
                 center = k.split(" ")[0]
@@ -34,6 +36,8 @@ def read_json(files: list[Path]) -> pd.DataFrame:
                 transformed_dict["center"].append("All")
                 transformed_dict["anatomy"].append(file.parent.stem.capitalize())
                 transformed_dict["segment_volume"].append(d[k]["segment_volume"])
+                transformed_dict["image_volume"].append(d[k]["volume"])
+                transformed_dict["time"].append(d[k]["time"])
                 transformed_dict["pt_id"].append(k)
 
                 transformed_dict["metric"].append(d[k][metric])
@@ -41,6 +45,8 @@ def read_json(files: list[Path]) -> pd.DataFrame:
                 transformed_dict["center"].append(center)
                 transformed_dict["anatomy"].append(file.parent.stem.capitalize())
                 transformed_dict["segment_volume"].append(d[k]["segment_volume"])
+                transformed_dict["image_volume"].append(d[k]["volume"])
+                transformed_dict["time"].append(d[k]["time"])
                 transformed_dict["pt_id"].append(k)
 
     return pd.DataFrame(transformed_dict)

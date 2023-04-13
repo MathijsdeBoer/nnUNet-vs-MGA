@@ -11,7 +11,9 @@ def _process_patient(input_files: list[Path], output_file: Path):
     arrays = [sitk.GetArrayFromImage(i) for i in images]
 
     output = np.zeros_like(arrays[0])
-    for idx, im in (prog_bar := tqdm(enumerate(arrays), total=len(arrays), leave=False, position=1)):
+    for idx, im in (
+        prog_bar := tqdm(enumerate(arrays), total=len(arrays), leave=False, position=1)
+    ):
         prog_bar.set_description(f"{idx}")
         output = np.where(im == 1, idx + 1, output)
 
@@ -45,10 +47,7 @@ def main(input_dirs: list[Path], output: Path):
     for file in (prog_bar := tqdm(files)):
         prog_bar.set_description(f"{file.name}")
         try:
-            _process_patient(
-                [p / file.name for p in input_dirs],
-                output / file.name
-            )
+            _process_patient([p / file.name for p in input_dirs], output / file.name)
         except RuntimeError:
             skipped.append(file)
 

@@ -16,20 +16,22 @@ def _find_file(path: Path, glob: str) -> Path | None:
     elif len(candidates) > 1:
         for i, c in enumerate(candidates):
             print(f" {i}: {c.name}")
-        selection = int(input(f"Please enter the number of the correct candidate for glob {glob}"))
+        selection = int(
+            input(f"Please enter the number of the correct candidate for glob {glob}")
+        )
         return candidates[selection]
     else:
         return None
 
 
 def _process_set(
-        samples: list[Path],
-        image_glob: list[str],
-        label_glob: str,
-        output_base: Path,
-        output_dir_suffix: str,
-        allow_missing_label: bool,
-        as_posix: bool
+    samples: list[Path],
+    image_glob: list[str],
+    label_glob: str,
+    output_base: Path,
+    output_dir_suffix: str,
+    allow_missing_label: bool,
+    as_posix: bool,
 ) -> tuple[dict[str, str], int]:
     paths: list[dict[str, str]] = []
     n_classes = 0
@@ -53,7 +55,9 @@ def _process_set(
         for i in image_glob:
             image = _find_file(sample, i)
             if image is None:
-                print(f"Image could not be found for {i} in {sample.name}, skipping this patient")
+                print(
+                    f"Image could not be found for {i} in {sample.name}, skipping this patient"
+                )
                 should_skip = True
             else:
                 images.append(image)
@@ -66,7 +70,9 @@ def _process_set(
         label = _find_file(sample, label_glob)
         if label is None:
             if not allow_missing_label:
-                print(f"Label could not be found for {label_glob} in {sample.name}, skipping this patient")
+                print(
+                    f"Label could not be found for {label_glob} in {sample.name}, skipping this patient"
+                )
                 should_skip = True
 
         # If something is wrong with the label, and we don't allow missing labels, skip
@@ -79,10 +85,7 @@ def _process_set(
         for idx, image in enumerate(images):
             output_name = sample.name + f"_{idx:04d}.nii.gz"
 
-            WriteImage(
-                ReadImage(image),
-                output_base / image_base / output_name
-            )
+            WriteImage(ReadImage(image), output_base / image_base / output_name)
 
         # Labels second
         if label is not None:
@@ -94,21 +97,22 @@ def _process_set(
             highest_class_no = int(np.max(label_array).item())
             n_classes = max(n_classes, highest_class_no)
 
-            WriteImage(
-                label_image,
-                output_base / label_base / output_name
-            )
+            WriteImage(label_image, output_base / label_base / output_name)
 
         if as_posix:
-            paths.append({
-                "image": (image_base / (sample.name + ".nii.gz")).as_posix(),
-                "label": (label_base / (sample.name + ".nii.gz")).as_posix()
-            })
+            paths.append(
+                {
+                    "image": (image_base / (sample.name + ".nii.gz")).as_posix(),
+                    "label": (label_base / (sample.name + ".nii.gz")).as_posix(),
+                }
+            )
         else:
-            paths.append({
-                "image": str(image_base / (sample.name + ".nii.gz")),
-                "label": str(label_base / (sample.name + ".nii.gz"))
-            })
+            paths.append(
+                {
+                    "image": str(image_base / (sample.name + ".nii.gz")),
+                    "label": str(label_base / (sample.name + ".nii.gz")),
+                }
+            )
 
     return paths, n_classes
 
@@ -170,7 +174,7 @@ def main(
         output_base=output,
         output_dir_suffix="Tr",
         allow_missing_label=allow_missing_label,
-        as_posix=as_posix
+        as_posix=as_posix,
     )
     test_paths, test_n_classes = _process_set(
         test_set,
@@ -179,11 +183,13 @@ def main(
         output_base=output,
         output_dir_suffix="Ts",
         allow_missing_label=allow_missing_label,
-        as_posix=as_posix
+        as_posix=as_posix,
     )
 
     if n_classes == test_n_classes:
-        raise RuntimeError("We did not find the same amount of classes in the test and train set")
+        raise RuntimeError(
+            "We did not find the same amount of classes in the test and train set"
+        )
 
     data_description = {
         "name": "name",
@@ -206,5 +212,5 @@ def main(
     print("\nDone!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
