@@ -35,14 +35,12 @@ def main(file: Path, metric_name: str | None = None, value: str | None = None):
         table[center] = values
 
     print(
-        f"{'Center':<10} | {'Mean':<10} | {'Std':<10} | {'Min':<10} |"
-        f" {'Max':<10} | {'Median':<10} | {'5th':<10} | {'95th':<10} | {'N':<10}"
+        f"{'Center':<10} | {'Mean':<10} | {'95 CI':<24} | {'N':<10}"
     )
     for center, values in table.items():
         print(
-            f"{center:<10} | {values.mean():<10.5g} | {values.std():<10.3g} | {values.min():<10.3g} |"
-            f" {values.max():<10.3g} | {values.median():<10.3g} | {values.quantile(0.05):<10.5g} |"
-            f" {values.quantile(0.95):<10.5g} | {len(values):<10}"
+            f"{center:<10} | {values.mean():<10.5g} | "
+            f"[{values.quantile(0.025):<10.5g}, {values.quantile(0.975):<10.5g}] | {len(values):<10}"
         )
 
 

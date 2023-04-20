@@ -1,3 +1,6 @@
+# NOTE: This is designed for nnU-Net <v2.*
+# V2 changed some things around, so this script would need to be updated to work with v2
+
 import json
 from pathlib import Path
 

@@ -55,7 +55,7 @@ def times(methods: list[tuple[str, Path]], sum_methods: list[str], output: Path)
             print(f"{'mean':<10} {'std':<10} {'5th':<10} {'95th':<10}")
             print(
                 f"{values.mean():<10.5g} {values.std():<10.5g} "
-                f"{values.quantile(0.05):<10.5g} {values.quantile(0.95):<10.5g}"
+                f"{values.quantile(0.025):<10.5g} {values.quantile(0.975):<10.5g}"
             )
         else:
             values = data.loc[
