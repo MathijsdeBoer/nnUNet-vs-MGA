@@ -45,3 +45,4 @@ Each module will have scripts meant for a specific aspect of our project.
 - `plot` contains scripts that generate the plots used in the article
 - `process` contains scripts that process the data in our files to generate the data used in the article
 - `stats` contains scripts that perform the statistical analyses
+
