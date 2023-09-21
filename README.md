@@ -46,3 +46,10 @@ Each module will have scripts meant for a specific aspect of our project.
 - `process` contains scripts that process the data in our files to generate the data used in the article
 - `stats` contains scripts that perform the statistical analyses
 
+## Files
+
+### Scores
+
+`scores.csv` contains the scores of the segmentation algorithms as used in the article.
+`scoresv2.csv` contains the results of the same analyses, but with the scores of nnU-Net V2 trained in the same way, as well as nnU-Net V2 trained with all 5 folds.
+`scoresv2.csv` is not used in the article, but is included for completeness.

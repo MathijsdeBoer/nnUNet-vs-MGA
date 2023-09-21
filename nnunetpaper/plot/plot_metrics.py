@@ -112,15 +112,24 @@ def volume(files: list[Path], output: Path):
     required=True,
     type=click.Path(writable=True, file_okay=True, path_type=Path),
 )
-def method(methods: list[tuple[str, Path]], output: Path):
-    data = get_multi_method_dataframe(methods)
+@click.option(
+    "-a",
+    "--auto-collect-anatomies",
+    required=False,
+    type=bool,
+    is_flag=True,
+    default=False,
+    show_default=True,
+)
+def method(methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False):
+    data = get_multi_method_dataframe(methods, auto_collect_anatomies)
     data["method_and_center"] = data["methods"] + " " + data["center"]
 
     anatomies = data["anatomy"].unique()
     for anatomy in anatomies:
         print(f"Plotting {anatomy}")
         sns.set_style("whitegrid")
-        sns.set_context("notebook", font_scale=2, rc={"lines.linewidth": 3})
+        sns.set_context("paper", font_scale=2, rc={"lines.linewidth": 3, "figure.figsize": (32, 32)})
         g = sns.catplot(
             data=data[data["anatomy"] == anatomy],
             x="methods",

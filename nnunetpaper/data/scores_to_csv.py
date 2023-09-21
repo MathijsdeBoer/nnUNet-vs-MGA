@@ -16,11 +16,20 @@ from nnunetpaper._utils import get_multi_method_dataframe
 @click.option(
     "-o", "--output", required=True, type=click.Path(writable=True, path_type=Path)
 )
-def main(methods: list[tuple[str, Path]], output: Path):
+@click.option(
+    "-a",
+    "--auto-collect-anatomies",
+    required=False,
+    type=bool,
+    is_flag=True,
+    default=False,
+    show_default=True,
+)
+def main(methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False):
     if output.is_dir():
         output /= "scores.csv"
 
-    data = get_multi_method_dataframe(methods)
+    data = get_multi_method_dataframe(methods, auto_collect_anatomies)
     print(data.head(10))
 
     # Filter out the repeated data

@@ -37,7 +37,10 @@ def read_json(files: list[Path]) -> pd.DataFrame:
                 transformed_dict["anatomy"].append(file.parent.stem.capitalize())
                 transformed_dict["segment_volume"].append(d[k]["segment_volume"])
                 transformed_dict["image_volume"].append(d[k]["volume"])
-                transformed_dict["time"].append(d[k]["time"])
+                if "time" in d[k].keys():
+                    transformed_dict["time"].append(d[k]["time"])
+                else:
+                    transformed_dict["time"].append(None)
                 transformed_dict["pt_id"].append(k)
 
                 transformed_dict["metric"].append(d[k][metric])
@@ -46,7 +49,10 @@ def read_json(files: list[Path]) -> pd.DataFrame:
                 transformed_dict["anatomy"].append(file.parent.stem.capitalize())
                 transformed_dict["segment_volume"].append(d[k]["segment_volume"])
                 transformed_dict["image_volume"].append(d[k]["volume"])
-                transformed_dict["time"].append(d[k]["time"])
+                if "time" in d[k].keys():
+                    transformed_dict["time"].append(d[k]["time"])
+                else:
+                    transformed_dict["time"].append(None)
                 transformed_dict["pt_id"].append(k)
 
     return pd.DataFrame(transformed_dict)
