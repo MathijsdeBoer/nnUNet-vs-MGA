@@ -25,7 +25,9 @@ from nnunetpaper._utils import get_multi_method_dataframe
     default=False,
     show_default=True,
 )
-def main(methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False):
+def main(
+    methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False
+):
     if output.is_dir():
         output /= "scores.csv"
 

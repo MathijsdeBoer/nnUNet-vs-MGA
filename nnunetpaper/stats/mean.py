@@ -34,9 +34,7 @@ def main(file: Path, metric_name: str | None = None, value: str | None = None):
         print(f"duplicates: {center_data.duplicated().any()}")
         table[center] = values
 
-    print(
-        f"{'Center':<10} | {'Mean':<10} | {'95 CI':<24} | {'N':<10}"
-    )
+    print(f"{'Center':<10} | {'Mean':<10} | {'95 CI':<24} | {'N':<10}")
     for center, values in table.items():
         print(
             f"{center:<10} | {values.mean():<10.5g} | "

@@ -5,7 +5,9 @@ import pandas as pd
 from nnunetpaper.data import read_json
 
 
-def get_multi_method_dataframe(methods: list[tuple[str, Path]], auto_collect_anatomies: bool = False) -> pd.DataFrame:
+def get_multi_method_dataframe(
+    methods: list[tuple[str, Path]], auto_collect_anatomies: bool = False
+) -> pd.DataFrame:
     if auto_collect_anatomies:
         tmp = []
         for name, path in methods:

@@ -48,9 +48,7 @@ def times(methods: list[tuple[str, Path]], sum_methods: list[str], output: Path)
     for method in data["methods"].unique():
         print(method)
         if method in sum_methods:
-            values = data[data["methods"] == method].groupby(
-                ["pt_id"]
-            )["time"].sum()
+            values = data[data["methods"] == method].groupby(["pt_id"])["time"].sum()
 
             print(f"{'mean':<10} {'std':<10} {'5th':<10} {'95th':<10}")
             print(

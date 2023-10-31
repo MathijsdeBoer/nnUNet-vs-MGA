@@ -86,7 +86,11 @@ def center(files: list[Path]):
     default=False,
     show_default=True,
 )
-def method(methods: list[tuple[str, Path]], center_to_check: str = "All", auto_collect_anatomies: bool = False):
+def method(
+    methods: list[tuple[str, Path]],
+    center_to_check: str = "All",
+    auto_collect_anatomies: bool = False,
+):
     data = get_multi_method_dataframe(methods, auto_collect_anatomies)
 
     test_data = data[data["center"] == center_to_check]
