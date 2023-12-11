@@ -101,10 +101,10 @@ def main(preds: Path, refs: Path, output: Path = None, check_class: int = 1):
         current_metrics["iou"] = iou(pred_image, ref_image).item()
 
         progress_bar.set_description(f"Processing {pred.name}: HD95")
-        current_metrics["hd95"] = hd95(pred_image, ref_image).item()
+        current_metrics["hd95"] = hd95(pred_image, ref_image, spacing=pred_spacing).item()
 
         progress_bar.set_description(f"Processing {pred.name}: ASSD")
-        current_metrics["assd"] = assd(pred_image, ref_image).item()
+        current_metrics["assd"] = assd(pred_image, ref_image, spacing=pred_spacing).item()
 
         metrics[pred.name] = current_metrics
 

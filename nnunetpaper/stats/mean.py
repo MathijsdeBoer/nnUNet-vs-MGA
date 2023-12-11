@@ -34,12 +34,17 @@ def main(file: Path, metric_name: str | None = None, value: str | None = None):
         print(f"duplicates: {center_data.duplicated().any()}")
         table[center] = values
 
-    print(f"{'Center':<10} | {'Mean':<10} | {'95 CI':<24} | {'N':<10}")
+    print(f"{'Center':<10} | {'Median':<10} | {'95 CI':<24} | {'N':<10}")
     for center, values in table.items():
         print(
-            f"{center:<10} | {values.mean():<10.5g} | "
+            f"{center:<10} | {values.median():<10.5g} | "
             f"[{values.quantile(0.025):<10.5g}, {values.quantile(0.975):<10.5g}] | {len(values):<10}"
         )
+
+    print()
+    for center, values in table.items():
+        print(f"{center}: {values.median():.3g} [{values.quantile(0.025):.3g}, {values.quantile(0.975):.3g}]")
+    print()
 
 
 if __name__ == "__main__":

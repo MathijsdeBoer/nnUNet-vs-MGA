@@ -33,27 +33,18 @@ def center(files: list[Path]):
             umcu = data.loc[
                 (data["metric_name"] == name)
                 & (data["anatomy"] == anatomy)
-                & (data["center"] == "UMCU"),
+                & (data["center"] == "Center A"),
                 "metric",
             ]
             usz = data.loc[
                 (data["metric_name"] == name)
                 & (data["anatomy"] == anatomy)
-                & (data["center"] == "USZ"),
+                & (data["center"] == "Center B"),
                 "metric",
             ]
 
-            print(
-                f"\t{name} | All:  {all_centers.mean():#.3g} ($\\pm$ {all_centers.std():#.3g})"
-            )
-            print(
-                f"\t{len(name) * ' '} | UMCU: {umcu.mean():#.3g} ($\\pm$ {umcu.std():#.3g})"
-            )
-            print(
-                f"\t{len(name) * ' '} | USZ:  {usz.mean():#.3g} ($\\pm$ {usz.std():#.3g})"
-            )
-
             mannwhitney = mannwhitneyu(umcu, usz)
+            print(f"\t{name}")
             print("\tMann-Whitney U:")
             if mannwhitney.pvalue < 0.001:
                 print(f"\t\t{mannwhitney.statistic:#.3g} ($\\mathbf{{p < 0.001}}$)")
@@ -135,7 +126,7 @@ def method(
                     metric_data["methods"] == method_name, "metric"
                 ]
                 print(
-                    f"\t\t{method_name}: {scores.mean():#.3g} ($\\pm$ {scores.std():#.3g})"
+                    f"\t\t{method_name}: {scores.median():#.3g} (95CI: [{scores.quantile(0.025):#.3g}, {scores.quantile(0.975):#.3g}])"
                 )
 
 

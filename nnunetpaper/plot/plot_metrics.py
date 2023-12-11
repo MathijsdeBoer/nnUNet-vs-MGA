@@ -16,9 +16,25 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import statsmodels.api as sm
+from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+from matplotlib.patches import Patch
+from matplotlib.ticker import ScalarFormatter, MaxNLocator, LogLocator, FuncFormatter, NullFormatter
 
 from nnunetpaper._utils import get_multi_method_dataframe
 from nnunetpaper.data import read_json
+
+
+def metric_formatter(metric_name: str) -> str:
+    if metric_name == "dice":
+        return "DSC"
+    elif metric_name == "iou":
+        return "IoU"
+    elif metric_name == "hd95":
+        return "HD95"
+    elif metric_name == "assd":
+        return "ASSD"
+    else:
+        raise ValueError(f"Unknown metric name: {metric_name}")
 
 
 @click.group()
@@ -128,42 +144,101 @@ def method(
     data["method_and_center"] = data["methods"] + " " + data["center"]
 
     anatomies = data["anatomy"].unique()
-    for anatomy in anatomies:
-        print(f"Plotting {anatomy}")
-        sns.set_style("whitegrid")
-        sns.set_context(
-            "paper", font_scale=2, rc={"lines.linewidth": 3, "figure.figsize": (32, 32)}
-        )
-        g = sns.catplot(
-            data=data[data["anatomy"] == anatomy],
-            x="methods",
-            y="metric",
-            hue="center",
-            col="metric_name",
-            col_wrap=2,
-            kind="box",
-            sharey=False,
-            palette=sns.color_palette("colorblind"),
-            legend=True,
-        )
-        g.set_titles(col_template="{col_name}", row_template="{row_name}")
-        plt.suptitle(anatomy)
+    metric_names = data["metric_name"].unique()
 
-        for col, ax in g.axes_dict.items():
-            if col in ["dice", "iou"]:
-                ax.set_ylabel("Score")
-                # ax.set_ylim((0.0, 1.1))
-            elif col in ["hd95", "assd"]:
-                ax.set_ylabel("Distance (voxels)")
+    sns.set_style("whitegrid")
+    sns.set_context(
+        "paper",
+        font_scale=0.5,
+        rc={
+            "figure.figsize": (32, 32),
+            "lines.linewidth": 0.5,
+        }
+    )
+
+    fig = plt.figure()
+    outer_gs = GridSpec(1, 2, figure=fig, wspace=0.2, hspace=0.25)
+    overlap_gs = GridSpecFromSubplotSpec(len(anatomies), len(metric_names) - 2, subplot_spec=outer_gs[0, 0], wspace=0.2)
+    distance_gs = GridSpecFromSubplotSpec(len(anatomies), len(metric_names) - 2, subplot_spec=outer_gs[0, 1], wspace=0.2)
+
+    axs = []
+    for row, anatomy in enumerate(anatomies):
+        for col, metric in enumerate(metric_names):
+            if metric in ["dice", "iou"]:
+                axs.append(fig.add_subplot(overlap_gs[row, col]))
+            elif metric in ["hd95", "assd"]:
+                axs.append(fig.add_subplot(distance_gs[row, col - 2]))
+
+    for row, anatomy in enumerate(anatomies):
+        for col, metric in enumerate(metric_names):
+            print(f"{anatomy} - {metric}: {row} - {col}")
+            ax = axs[row * len(metric_names) + col]
+            sns.boxplot(
+                data=data[(data["anatomy"] == anatomy) & (data["metric_name"] == metric)],
+                x="methods",
+                y="metric",
+                hue="center",
+                fliersize=2.5,
+                ax=ax,
+                legend=False,
+                linewidth=1.0,
+            )
+
+            ax.tick_params(axis="both", which="major", pad=-2.5)
+            ax.tick_params(axis="both", which="minor", pad=-0.5)
+
+            # Set the metric names to the top row
+            if row == 0:
+                ax.set_title(f"$\\bf{{{metric_formatter(metric)}}}$")
+
+            # Set the methods label to the bottom row
+            if row != len(anatomies) - 1:
+                ax.set_xlabel("")
+            else:
+                ax.set_xlabel("Method")
+
+            # Set the y-axis to log for distance metrics
+            if metric in ["hd95", "assd"]:
                 ax.set_yscale("log")
-                # ax.set_ylim((None, None))
 
-        sns.despine(trim=True, left=True)
+                formatter = FuncFormatter(lambda y, _: "{:.16g}".format(y))
+                locator = LogLocator(subs=[1.0, 2.5, 5.0])
 
-        if not output.exists():
-            output.mkdir(parents=True)
-        plot_output = output / f"methods_plot_{anatomy}.png"
-        plt.savefig(plot_output, dpi=300)
+                ax.yaxis.set_major_formatter(formatter)
+                ax.yaxis.set_major_locator(locator)
+
+                ax.yaxis.set_minor_formatter(NullFormatter())
+
+            # Turn off y-axis labels for all but the first column
+            # in a given metric type
+            if col == 0:
+                ax.set_ylabel("Score")
+            elif col == 2:
+                ax.set_ylabel("Distance (mm)")
+            elif col == 3:
+                print("Setting anatomy label")
+                ax.yaxis.set_label_position("right")
+                ax.set_ylabel(f"$\\bf{{{anatomy}}}$", rotation=-90, labelpad=10)
+            else:
+                ax.set_ylabel("")
+
+    if not output.exists():
+        output.mkdir(parents=True)
+
+    # Add the legend for the entire figure
+    legend_elements = [
+        Patch(facecolor="C0", edgecolor="k", label="All"),
+        Patch(facecolor="C1", edgecolor="k", label="Center A"),
+        Patch(facecolor="C2", edgecolor="k", label="Center B"),
+    ]
+    fig.legend(
+        handles=legend_elements,
+        loc="center right",
+    )
+
+    plt.tight_layout()
+    plot_output = output / f"methods_plot.png"
+    plt.savefig(plot_output, dpi=300)
 
 
 @main.command()
