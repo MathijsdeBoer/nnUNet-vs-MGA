@@ -1036,6 +1036,20 @@ files = [
 ]
 
 [[package]]
+name = "pydicom"
+version = "2.4.3"
+description = "A pure Python package for reading and writing DICOM data"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pydicom-2.4.3-py3-none-any.whl", hash = "sha256:797e84f7b22e5f8bce403da505935b0787dca33550891f06495d14b3f6c70504"},
+    {file = "pydicom-2.4.3.tar.gz", hash = "sha256:51906e0b9fb6e184a0f56298cb43ed716b7cf7edc00f6b71d5c769bc1f982402"},
+]
+
+[package.extras]
+docs = ["matplotlib", "numpy", "numpydoc", "pillow", "sphinx", "sphinx-copybutton", "sphinx-gallery", "sphinx_rtd_theme", "sphinxcontrib-napoleon"]
+
+[[package]]
 name = "pyflakes"
 version = "3.1.0"
 description = "passive checker of Python programs"
@@ -1507,4 +1521,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.12"
-content-hash = "40164276714172fd35fe2e88092290c47da1128bc2bbf0916239142791b955f5"
+content-hash = "e7bbdbfba4900c4d27743c27414f42b7e7e9c3afde5337b61962571533f9b0cd"

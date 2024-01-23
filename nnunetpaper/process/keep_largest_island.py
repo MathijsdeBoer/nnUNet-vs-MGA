@@ -5,7 +5,9 @@ import SimpleITK as sitk
 from tqdm import tqdm
 
 
-def _process_patient(image: sitk.Image) -> sitk.Image:
+def _process_patient(image: Path | str) -> sitk.Image:
+    image = sitk.ReadImage(image)
+
     # Relabel each separate component
     cc_filter = sitk.ConnectedComponentImageFilter()
     image = cc_filter.Execute(image)

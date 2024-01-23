@@ -18,7 +18,7 @@ import seaborn as sns
 import statsmodels.api as sm
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 from matplotlib.patches import Patch
-from matplotlib.ticker import ScalarFormatter, MaxNLocator, LogLocator, FuncFormatter, NullFormatter
+from matplotlib.ticker import LogLocator, FuncFormatter, NullFormatter
 
 from nnunetpaper._utils import get_multi_method_dataframe
 from nnunetpaper.data import read_json
@@ -137,11 +137,23 @@ def volume(files: list[Path], output: Path):
     default=False,
     show_default=True,
 )
+@click.option(
+    "-c",
+    "--plot-centers",
+    required=False,
+    type=bool,
+    is_flag=True,
+    default=True,
+    show_default=True,
+)
 def method(
-    methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False
+    methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False, plot_centers: bool = True
 ):
     data = get_multi_method_dataframe(methods, auto_collect_anatomies)
     data["method_and_center"] = data["methods"] + " " + data["center"]
+
+    if not plot_centers:
+        data = data[data["center"] == "All"]
 
     anatomies = data["anatomy"].unique()
     metric_names = data["metric_name"].unique()
@@ -225,16 +237,17 @@ def method(
     if not output.exists():
         output.mkdir(parents=True)
 
-    # Add the legend for the entire figure
-    legend_elements = [
-        Patch(facecolor="C0", edgecolor="k", label="All"),
-        Patch(facecolor="C1", edgecolor="k", label="Center A"),
-        Patch(facecolor="C2", edgecolor="k", label="Center B"),
-    ]
-    fig.legend(
-        handles=legend_elements,
-        loc="center right",
-    )
+    if plot_centers:
+        # Add the legend for the entire figure
+        legend_elements = [
+            Patch(facecolor="C0", edgecolor="k", label="All"),
+            Patch(facecolor="C1", edgecolor="k", label="Center A"),
+            Patch(facecolor="C2", edgecolor="k", label="Center B"),
+        ]
+        fig.legend(
+            handles=legend_elements,
+            loc="center right",
+        )
 
     plt.tight_layout()
     plot_output = output / f"methods_plot.png"

@@ -17,6 +17,7 @@ scipy = "^1.10.0"
 nibabel = "^5.0.0"
 scikit-learn = "^1.2.2"
 statsmodels = "^0.13.5"
+pydicom = "^2.4.3"
 
 [[tool.poetry.source]]
 name = "pytorch"
