@@ -126,7 +126,7 @@ def volume(files: list[Path], output: Path):
     "-o",
     "--output",
     required=True,
-    type=click.Path(writable=True, file_okay=True, path_type=Path),
+    type=click.Path(writable=True, file_okay=False, path_type=Path),
 )
 @click.option(
     "-a",
