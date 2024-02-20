@@ -143,11 +143,11 @@ def volume(files: list[Path], output: Path):
     required=False,
     type=bool,
     is_flag=True,
-    default=True,
+    default=False,
     show_default=True,
 )
 def method(
-    methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False, plot_centers: bool = True
+    methods: list[tuple[str, Path]], output: Path, auto_collect_anatomies: bool = False, plot_centers: bool = False
 ):
     data = get_multi_method_dataframe(methods, auto_collect_anatomies)
     data["method_and_center"] = data["methods"] + " " + data["center"]
